@@ -472,6 +472,109 @@
     </div>
 
     <div class="overlay"></div>
+    <div id="product-details-popup" class="product-details-popup">
+        <div class="product-details-content">
+            <button class="close-popup"><i class="fas fa-times"></i></button>
+            <div class="product-details-grid">
+                <div class="product-images">
+                    <div class="main-image">
+                        <img src="" alt="Product Image" id="popup-main-image" loading="lazy">
+                        <div class="image-zoom">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                    <div class="thumbnail-container">
+                        <button class="thumbnail-nav prev-thumbnail"><i class="fas fa-chevron-left"></i></button>
+                        <div class="thumbnail-scroll">
+                            <div class="thumbnail-images">
+                                <!-- Thumbnails will be dynamically added here -->
+                            </div>
+                        </div>
+                        <button class="thumbnail-nav next-thumbnail"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="product-info-details">
+                    <div class="product-header">
+                        <h2 id="popup-product-name"></h2>
+                        <p class="price" id="popup-product-price"></p>
+                    </div>
+                    
+                    <div class="product-description">
+                        <h3>Product Description</h3>
+                        <p id="popup-product-description"></p>
+                    </div>
+
+                    <div class="seller-info">
+                        <h3>Seller Information</h3>
+                        <div class="seller-details">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf1f6de8?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Seller" class="seller-avatar">
+                            <div class="seller-content">
+                                <h4>KAISOM Organic Skincare</h4>
+                                <p class="seller-tagline">Premium Korean Skincare Products</p>
+                                <div class="seller-stats">
+                                    <div class="seller-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>4.5 (1,234 reviews)</span>
+                                    </div>
+                                    <div class="seller-sales">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <span>2,345 products sold</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="delivery-info">
+                        <h3>Delivery Information</h3>
+                        <div class="delivery-details">
+                            <div class="delivery-timeframe">
+                                <i class="fas fa-truck"></i>
+                                <div>
+                                    <p>Expected Delivery: <span id="expected-delivery">April 30th - May 2nd</span></p>
+                                    <p class="delivery-note">Free shipping on orders over $50</p>
+                                </div>
+                            </div>
+                            <div class="shipping-options">
+                                <h4>Shipping Options</h4>
+                                <div class="shipping-option">
+                                    <input type="radio" id="standard-shipping" name="shipping" checked>
+                                    <label for="standard-shipping">
+                                        <span class="option-name">Standard Shipping</span>
+                                        <span class="option-price">Free</span>
+                                        <span class="option-time">3-5 business days</span>
+                                    </label>
+                                </div>
+                                <div class="shipping-option">
+                                    <input type="radio" id="express-shipping" name="shipping">
+                                    <label for="express-shipping">
+                                        <span class="option-name">Express Shipping</span>
+                                        <span class="option-price">$9.99</span>
+                                        <span class="option-time">1-2 business days</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-actions">
+                        <div class="quantity-selector">
+                            <button class="quantity-btn minus"><i class="fas fa-minus"></i></button>
+                            <input type="number" class="quantity-input" value="1" min="1">
+                            <button class="quantity-btn plus"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <button class="add-to-cart-btn">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Add to Cart</span>
+                            <div class="cart-animation">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
