@@ -574,4 +574,300 @@ stepLinks.forEach(link => {
         // Trigger filter (you'll need to implement the filter functionality)
         // filterProducts(filter);
     });
+});
+
+// Sample product images data (replace with your actual data)
+const productImages = {
+    'Floral Summer Dress': [
+        'https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+        'https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+        'https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+        'https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+        'https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+    ],
+    // Add more products as needed
+};
+
+// Sample delivery dates (replace with your actual logic)
+function getDeliveryDates() {
+    const today = new Date();
+    const standardDelivery = new Date(today);
+    standardDelivery.setDate(today.getDate() + 5);
+    const expressDelivery = new Date(today);
+    expressDelivery.setDate(today.getDate() + 2);
+    
+    return {
+        standard: {
+            start: formatDate(new Date(today.setDate(today.getDate() + 3))),
+            end: formatDate(standardDelivery)
+        },
+        express: {
+            start: formatDate(new Date(today.setDate(today.getDate() + 1))),
+            end: formatDate(expressDelivery)
+        }
+    };
+}
+
+function formatDate(date) {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const suffix = ['th', 'st', 'nd', 'rd'][(day % 10 > 3) ? 0 : (day % 100 - day % 10 != 10) * day % 10];
+    return `${month} ${day}${suffix}`;
+}
+
+// Enhanced Product Details Popup Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const productCards = document.querySelectorAll('.product-card');
+    const popup = document.querySelector('.product-details-popup');
+    const closePopup = document.querySelector('.close-popup');
+    const mainImage = document.querySelector('.main-image img');
+    const thumbnailContainer = document.querySelector('.thumbnail-scroll');
+    const thumbnailImages = document.querySelector('.thumbnail-images');
+    const prevThumbnail = document.querySelector('.prev-thumbnail');
+    const nextThumbnail = document.querySelector('.next-thumbnail');
+    const quantityInput = document.querySelector('.quantity-input');
+    const decreaseBtn = document.querySelector('.quantity-btn.minus');
+    const increaseBtn = document.querySelector('.quantity-btn.plus');
+    const addToCartBtn = document.querySelector('.add-to-cart-btn');
+    const imageZoom = document.querySelector('.image-zoom');
+    const shippingOptions = document.querySelectorAll('input[name="shipping"]');
+
+    // Open popup when clicking on a product card
+    productCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Prevent opening popup if clicking on the add to cart button
+            if (e.target.closest('.add-to-cart')) return;
+
+            const productName = this.querySelector('h3').textContent;
+            const productPrice = this.querySelector('.price').textContent;
+            const productImage = this.querySelector('img').src;
+            
+            // Show loading spinner
+            const spinner = document.createElement('div');
+            spinner.className = 'loading-spinner';
+            popup.appendChild(spinner);
+            
+            // Update popup content
+            document.querySelector('.product-info-details h2').textContent = productName;
+            document.querySelector('.product-info-details .price').textContent = productPrice;
+            
+            // Load main image with lazy loading
+            mainImage.src = productImage;
+            mainImage.onload = () => {
+                spinner.remove();
+            };
+            
+            // Update thumbnails
+            updateThumbnails(productName);
+            
+            // Update delivery dates
+            updateDeliveryDates();
+            
+            // Add animation classes to elements
+            const animatedElements = popup.querySelectorAll('.product-images, .product-info-details > *');
+            animatedElements.forEach((el, index) => {
+                el.style.setProperty('--index', index);
+            });
+            
+            // Show popup with animation
+            popup.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    // Update delivery dates based on shipping option
+    function updateDeliveryDates() {
+        const dates = getDeliveryDates();
+        const deliverySpan = document.getElementById('expected-delivery');
+        const selectedShipping = document.querySelector('input[name="shipping"]:checked').id;
+        
+        if (selectedShipping === 'express-shipping') {
+            deliverySpan.textContent = `${dates.express.start} - ${dates.express.end}`;
+        } else {
+            deliverySpan.textContent = `${dates.standard.start} - ${dates.standard.end}`;
+        }
+    }
+
+    // Update delivery dates when shipping option changes
+    shippingOptions.forEach(option => {
+        option.addEventListener('change', updateDeliveryDates);
+    });
+
+    // Update thumbnails with lazy loading
+    function updateThumbnails(productName) {
+        thumbnailImages.innerHTML = '';
+        const images = productImages[productName] || [];
+        
+        images.forEach((image, index) => {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = image;
+            thumbnail.alt = `Thumbnail ${index + 1}`;
+            thumbnail.className = 'thumbnail';
+            thumbnail.loading = 'lazy';
+            
+            if (index === 0) {
+                thumbnail.classList.add('active');
+            }
+            
+            thumbnail.addEventListener('click', () => {
+                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                thumbnail.classList.add('active');
+                mainImage.src = image;
+            });
+            
+            thumbnailImages.appendChild(thumbnail);
+        });
+
+        // Show/hide navigation buttons based on thumbnail count
+        const showNavigation = images.length > 4;
+        prevThumbnail.style.display = showNavigation ? 'flex' : 'none';
+        nextThumbnail.style.display = showNavigation ? 'flex' : 'none';
+    }
+
+    // Thumbnail navigation
+    let scrollPosition = 0;
+    const scrollAmount = 100;
+
+    prevThumbnail.addEventListener('click', () => {
+        scrollPosition = Math.max(0, scrollPosition - scrollAmount);
+        thumbnailContainer.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+    });
+
+    nextThumbnail.addEventListener('click', () => {
+        const maxScroll = thumbnailImages.scrollWidth - thumbnailContainer.clientWidth;
+        scrollPosition = Math.min(maxScroll, scrollPosition + scrollAmount);
+        thumbnailContainer.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+    });
+
+    // Image zoom functionality with smooth transition
+    let isZoomed = false;
+    imageZoom.addEventListener('click', () => {
+        isZoomed = !isZoomed;
+        mainImage.style.transform = isZoomed ? 'scale(1.5)' : 'scale(1)';
+        imageZoom.innerHTML = isZoomed ? 
+            '<i class="fas fa-search-minus"></i>' : 
+            '<i class="fas fa-search-plus"></i>';
+    });
+
+    // Pan zoomed image
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
+
+    mainImage.addEventListener('mousedown', (e) => {
+        if (!isZoomed) return;
+        isDragging = true;
+        startX = e.clientX - initialX;
+        startY = e.clientY - initialY;
+        mainImage.style.cursor = 'grabbing';
+    });
+
+    mainImage.addEventListener('mousemove', (e) => {
+        if (!isDragging || !isZoomed) return;
+        e.preventDefault();
+        const x = e.clientX - startX;
+        const y = e.clientY - startY;
+        mainImage.style.transform = `scale(1.5) translate(${x}px, ${y}px)`;
+    });
+
+    mainImage.addEventListener('mouseup', () => {
+        isDragging = false;
+        mainImage.style.cursor = isZoomed ? 'grab' : 'default';
+    });
+
+    mainImage.addEventListener('mouseleave', () => {
+        isDragging = false;
+        mainImage.style.cursor = 'default';
+    });
+
+    // Close popup with smooth animation
+    function closePopupWithAnimation() {
+        popup.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        // Reset image zoom
+        isZoomed = false;
+        mainImage.style.transform = 'scale(1)';
+        imageZoom.innerHTML = '<i class="fas fa-search-plus"></i>';
+        
+        // Reset quantity
+        quantityInput.value = '1';
+        
+        // Reset shipping option
+        document.getElementById('standard-shipping').checked = true;
+        updateDeliveryDates();
+    }
+
+    closePopup.addEventListener('click', closePopupWithAnimation);
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            closePopupWithAnimation();
+        }
+    });
+
+    // Quantity controls with smooth animation
+    decreaseBtn.addEventListener('click', () => {
+        let value = parseInt(quantityInput.value);
+        if (value > 1) {
+            quantityInput.value = value - 1;
+            quantityInput.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                quantityInput.style.transform = 'scale(1)';
+            }, 150);
+        }
+    });
+
+    increaseBtn.addEventListener('click', () => {
+        let value = parseInt(quantityInput.value);
+        quantityInput.value = value + 1;
+        quantityInput.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            quantityInput.style.transform = 'scale(1)';
+        }, 150);
+    });
+
+    // Add to cart with enhanced animation
+    addToCartBtn.addEventListener('click', () => {
+        const productName = document.querySelector('.product-info-details h2').textContent;
+        const quantity = parseInt(quantityInput.value);
+        
+        // Add to cart
+        addToCart(productName, quantity);
+        
+        // Show animation
+        addToCartBtn.classList.add('added');
+        setTimeout(() => {
+            addToCartBtn.classList.remove('added');
+        }, 1000);
+        
+        // Show success message
+        showNotification('Added to cart!');
+    });
+
+    // Prevent quantity input from accepting non-numeric values
+    quantityInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value === '') this.value = '1';
+    });
+
+    // Add to cart function
+    function addToCart(productName, quantity) {
+        const product = products.find(p => p.name === productName);
+        if (product) {
+            const existingItem = cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({ ...product, quantity });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartDisplay();
+        }
+    }
 }); 
